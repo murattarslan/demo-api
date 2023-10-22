@@ -1,8 +1,10 @@
 package restaurant.core.plugins
 
+import com.typesafe.config.ConfigFactory
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import ignoreNull
+import io.ktor.server.config.*
 import restaurant.core.extentions.toResultMessage
 import restaurant.core.model.Response
 import restaurant.core.model.ResultMessage
@@ -10,9 +12,10 @@ import restaurant.core.text.Locale
 import java.sql.ResultSet
 
 val config = HikariConfig().apply {
-    jdbcUrl = "jdbc:mysql://restorandemo.mysql.database.azure.com:3306/restaurant"
-    username = "manager"
-    password = "Admin.1357"
+    val config = HoconApplicationConfig(ConfigFactory.load())
+    jdbcUrl = config.property("db.jdbcUrl").getString()
+    username = config.property("db.username").getString()
+    password = config.property("db.password").getString()
 }
 
 val dataSource = HikariDataSource(config)
