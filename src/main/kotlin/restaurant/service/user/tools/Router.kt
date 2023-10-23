@@ -94,10 +94,10 @@ fun Route.userRoutingRequireToken() {
             val principal = call.principal<JWTPrincipal>()
             var id = principal?.payload?.getClaim("id")?.asString()
             val body = call.receive<HashMap<String, String>>()
-            var nameBody = body["name"].ignoreNull()
-            var lastnameBody = body["lastname"].ignoreNull()
-            var phoneBody = body["phone"]
-            var mailBody = body["mail"]
+            val nameBody = body["name"].ignoreNull()
+            val lastnameBody = body["lastname"].ignoreNull()
+            val phoneBody = body["phone"]
+            val mailBody = body["mail"]
             val lang = call.request.headers[HeaderParams.language]
             val locale = Locale.entries.firstOrNull { it.lang.equals(lang, true) } ?: Locale.TURKISH
             val (user,message) = checkUser(id,locale)
@@ -126,6 +126,13 @@ fun Route.userRoutingRequireToken() {
             }
             else
                 call.respond(safeDeleteUser(id,locale))
+        }
+        get("/logout") {
+            val principal = call.principal<JWTPrincipal>()
+            val id = principal?.payload?.getClaim("id")?.asString()
+            val lang = call.request.headers[HeaderParams.language]
+            val locale = Locale.entries.firstOrNull { it.lang.equals(lang, true) } ?: Locale.TURKISH
+            call.respond(logout(id,locale))
         }
         get("/users") {
             val lang = call.request.headers[HeaderParams.language]
