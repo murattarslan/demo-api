@@ -1,5 +1,6 @@
 package restaurant.core.extentions
 
+import ignoreNull
 import restaurant.core.model.ResultMessage
 import restaurant.core.model.ResultType
 import restaurant.core.text.Locale
@@ -8,7 +9,7 @@ import java.sql.SQLException
 fun Exception.toResultMessage(locale: Locale = Locale.TURKISH): ResultMessage {
     val lang = locale.language
     val (title, message) = when (this) {
-        is SQLException -> Pair(lang.sqlErrorTitle, lang.sqlErrorMessage)
+        is SQLException -> Pair(lang.sqlErrorTitle, message.ignoreNull()) //lang.sqlErrorMessage)
         is IllegalStateException -> Pair(lang.illegalStateErrorTitle, lang.illegalStateErrorMessage)
         is IllegalArgumentException -> Pair(lang.illegalArgumentErrorTitle, lang.illegalArgumentErrorMessage)
         is ClassCastException -> Pair(lang.classCastErrorTitle, lang.classCastErrorMessage)
