@@ -4,9 +4,9 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import restaurant.core.plugins.configureAuthentication
-import restaurant.core.plugins.configureRouting
-import restaurant.core.plugins.configureSerialization
+import application.core.plugins.configureAuthentication
+import application.core.plugins.configureRouting
+import application.core.plugins.configureSerialization
 import kotlin.test.*
 
 class ApplicationTest {
