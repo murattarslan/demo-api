@@ -1,5 +1,8 @@
 package application.core.plugins
 
+import application.core.extentions.toDate
+import application.core.text.Locale
+import application.service.user.endpoint.users.getUser
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.typesafe.config.ConfigFactory
@@ -10,8 +13,6 @@ import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.config.*
 import io.ktor.server.response.*
-import kotlinx.coroutines.runBlocking
-import application.service.user.endpoint.get.getUser
 
 fun Application.configureAuthentication() {
     val config = HoconApplicationConfig(ConfigFactory.load())
@@ -29,9 +30,10 @@ fun Application.configureAuthentication() {
                 .build())
             validate { credential ->
                 val id = credential.getClaim("id",String::class).ignoreNull()
+                val (user, _) = getUser(id,Locale.TURKISH)
                 val loginAt = credential.getClaim("loginAt",String::class).ignoreNull()
-                val (user, _) = runBlocking { getUser(id) }
-                if (user?.loginAt == loginAt) {
+                val expire = user?.loginAt?.toDate()?.time == loginAt.toDate().time
+                if (expire) {
                     JWTPrincipal(credential.payload)
                 } else {
                     null
@@ -50,15 +52,17 @@ fun Application.configureAuthentication() {
                 .build())
             validate { credential ->
                 val id = credential.getClaim("id",String::class).ignoreNull()
-                val (user, _) = runBlocking { getUser(id) }
-                if (user?.role.ignoreNull() == 1) {
+                val (user, _) = getUser(id,Locale.TURKISH)
+                val loginAt = credential.getClaim("loginAt",String::class).ignoreNull()
+                val expire = user?.loginAt?.toDate()?.time == loginAt.toDate().time
+                if (user?.role.ignoreNull() == 1 && expire) {
                     JWTPrincipal(credential.payload)
                 } else {
                     null
                 }
             }
             challenge { _,_ ->
-                call.respond(HttpStatusCode.Unauthorized, "Bu işlem için yetkiniz bulunmamaktadır")
+                call.respond(HttpStatusCode.Unauthorized, "Bu işlem bir yönetici işlemidir ve sizin bunun için yetkiniz bulunmamaktadır")
             }
         }
         jwt("auth-jwt-for-trader") {
@@ -70,15 +74,17 @@ fun Application.configureAuthentication() {
                 .build())
             validate { credential ->
                 val id = credential.getClaim("id",String::class).ignoreNull()
-                val (user, _) = runBlocking { getUser(id) }
-                if (user?.role.ignoreNull(-1) == 0 || user?.role.ignoreNull(-1) == 1) {
+                val (user, _) = getUser(id,Locale.TURKISH)
+                val loginAt = credential.getClaim("loginAt",String::class).ignoreNull()
+                val expire = user?.loginAt?.toDate()?.time == loginAt.toDate().time
+                if ((user?.role.ignoreNull() == 1 || user?.role.ignoreNull() == 2) && expire) {
                     JWTPrincipal(credential.payload)
                 } else {
                     null
                 }
             }
             challenge { _,_ ->
-                call.respond(HttpStatusCode.Unauthorized, "Bu işlem için yetkiniz bulunmamaktadır")
+                call.respond(HttpStatusCode.Unauthorized, "Bu işlem bir satıcı işlemidir ve sizin bunun için yetkiniz bulunmamaktadır")
             }
         }
     }

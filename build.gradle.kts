@@ -24,7 +24,7 @@ repositories {
 
 dependencies {
     implementation("com.zaxxer:HikariCP:4.0.3")
-    implementation ("mysql:mysql-connector-java:8.0.28")
+    implementation ("org.postgresql:postgresql:42.2.27")
     implementation("io.ktor:ktor-server-auth:$ktor_version")
     implementation("io.ktor:ktor-server-auth-jwt:$ktor_version")
     implementation("io.ktor:ktor-server-core-jvm")
@@ -35,4 +35,5 @@ dependencies {
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     implementation(kotlin("script-runtime"))
+    testImplementation("io.ktor:ktor-server-test-host-jvm:2.3.5")
 }

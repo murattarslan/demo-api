@@ -16,6 +16,7 @@ val config = HikariConfig().apply {
     jdbcUrl = config.property("db.jdbcUrl").getString()
     username = config.property("db.username").getString()
     password = config.property("db.password").getString()
+    driverClassName = "org.postgresql.Driver"
 }
 
 val dataSource = HikariDataSource(config)
